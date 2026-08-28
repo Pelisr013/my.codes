@@ -1,0 +1,10 @@
+M TempoCiclo = 
+ 
+VAR T = AVERAGE(qry_Industrial[TempoDeCiclo]) 
+VAR H = INT(T / 3600) 
+VAR M = INT(INT(T- (H * 3600)) / 60) 
+VAR S = MOD(T, 60)
+ 
+RETURN
+ 
+(H* 10000 + M* 100 + S)
