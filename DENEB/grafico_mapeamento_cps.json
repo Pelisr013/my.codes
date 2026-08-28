@@ -1,0 +1,840 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "width": 1220,
+  "height": 520,
+  "padding": 20,
+  "autosize": { "type": "fit", "contains": "padding" },
+  "background": null,
+
+  "signals": [
+    { "name": "topStartX", "value": 140 },
+    { "name": "topEndX", "value": 950 },
+    { "name": "topY", "value": 90 },
+
+    { "name": "midLeftX", "value": 200 },
+    { "name": "midRightX", "value": 950 },
+    { "name": "midY", "value": 250 },
+
+    { "name": "botLeftX", "value": 200 },
+    { "name": "botRightX", "value": 1000 },
+    { "name": "botY", "value": 410 },
+
+    { "name": "topWidth", "update": "topEndX - topStartX" },
+    { "name": "midWidth", "update": "midRightX - midLeftX" },
+    { "name": "botWidth", "update": "botRightX - botLeftX" },
+
+    { "name": "regCount", "update": "length(data('s_reg'))" },
+    { "name": "preCount", "update": "length(data('s_pre'))" },
+    { "name": "callCount", "update": "length(data('s_call'))" },
+
+    { "name": "fimCount", "update": "length(data('s_fim'))" },
+    { "name": "iniCount", "update": "length(data('s_ini'))" },
+
+    { "name": "recCount", "update": "length(data('s_rec'))" },
+    { "name": "aprCount", "update": "length(data('s_apr'))" },
+
+    { "name": "topTotal", "update": "(regCount + preCount + callCount) > 0 ? (regCount + preCount + callCount) : 1" },
+    { "name": "midTotal", "update": "(fimCount + iniCount) > 0 ? (fimCount + iniCount) : 1" },
+    { "name": "botTotal", "update": "(recCount + aprCount) > 0 ? (recCount + aprCount) : 1" },
+
+    { "name": "regRaw", "update": "(regCount / topTotal) < 0.2 ? 0.2 : (regCount / topTotal)" },
+    { "name": "preRaw", "update": "(preCount / topTotal) < 0.2 ? 0.2 : (preCount / topTotal)" },
+    { "name": "callRaw", "update": "(callCount / topTotal) < 0.2 ? 0.2 : (callCount / topTotal)" },
+    { "name": "topRawSum", "update": "regRaw + preRaw + callRaw" },
+
+    { "name": "fimRaw", "update": "(fimCount / midTotal) < 0.2 ? 0.2 : (fimCount / midTotal)" },
+    { "name": "iniRaw", "update": "(iniCount / midTotal) < 0.2 ? 0.2 : (iniCount / midTotal)" },
+    { "name": "midRawSum", "update": "fimRaw + iniRaw" },
+
+    { "name": "recRaw", "update": "(recCount / botTotal) < 0.2 ? 0.2 : (recCount / botTotal)" },
+    { "name": "aprRaw", "update": "(aprCount / botTotal) < 0.2 ? 0.2 : (aprCount / botTotal)" },
+    { "name": "botRawSum", "update": "recRaw + aprRaw" },
+
+    { "name": "regW", "update": "regRaw / topRawSum" },
+    { "name": "preW", "update": "preRaw / topRawSum" },
+    { "name": "callW", "update": "callRaw / topRawSum" },
+
+    { "name": "fimW", "update": "fimRaw / midRawSum" },
+    { "name": "iniW", "update": "iniRaw / midRawSum" },
+
+    { "name": "recW", "update": "recRaw / botRawSum" },
+    { "name": "aprW", "update": "aprRaw / botRawSum" },
+
+    { "name": "topDiv1", "update": "topStartX + topWidth * regW" },
+    { "name": "topDiv2", "update": "topStartX + topWidth * (regW + preW)" },
+
+    { "name": "midDiv", "update": "midLeftX + midWidth * fimW" },
+    { "name": "botDiv", "update": "botLeftX + botWidth * recW" },
+
+    { "name": "regCenter", "update": "(topStartX + topDiv1) / 2" },
+    { "name": "preCenter", "update": "(topDiv1 + topDiv2) / 2" },
+    { "name": "callCenter", "update": "(topDiv2 + topEndX) / 2" },
+
+    { "name": "fimCenter", "update": "(midLeftX + midDiv) / 2" },
+    { "name": "iniCenter", "update": "(midDiv + midRightX) / 2" },
+
+    { "name": "recCenter", "update": "(botLeftX + botDiv) / 2" },
+    { "name": "aprCenter", "update": "(botDiv + botRightX) / 2" }
+  ],
+
+  "data": [
+    { "name": "dataset" },
+
+    {
+      "name": "s_reg",
+      "source": "dataset",
+      "transform": [{ "type": "filter", "expr": "datum.Status == '00 Registrado'" }]
+    },
+    {
+      "name": "s_pre",
+      "source": "dataset",
+      "transform": [{ "type": "filter", "expr": "datum.Status == '01 Pré-Entrada'" }]
+    },
+    {
+      "name": "s_call",
+      "source": "dataset",
+      "transform": [{ "type": "filter", "expr": "datum.Status == '02 Chamado'" }]
+    },
+    {
+      "name": "s_fim",
+      "source": "dataset",
+      "transform": [{ "type": "filter", "expr": "datum.Status == '05 Fim de Carregamento'" }]
+    },
+    {
+      "name": "s_ini",
+      "source": "dataset",
+      "transform": [{ "type": "filter", "expr": "datum.Status == '04 Início de Carregamento'" }]
+    },
+    {
+      "name": "s_rec",
+      "source": "dataset",
+      "transform": [{ "type": "filter", "expr": "datum.Status == '07 Recusado'" }]
+    },
+    {
+      "name": "s_apr",
+      "source": "dataset",
+      "transform": [{ "type": "filter", "expr": "datum.Status == '08 Aprovado'" }]
+    },
+
+    {
+      "name": "top_line",
+      "values": [
+        { "x": 140, "y": 90 },
+        { "x": 950, "y": 90 }
+      ]
+    },
+    {
+      "name": "right_curve",
+      "values": [
+        { "x": 950.00, "y": 90 },
+        { "x": 960.00, "y": 90.5 },
+        { "x": 970.00, "y": 92 },
+        { "x": 980.00, "y": 95 },
+        { "x": 988.73, "y": 100 },
+        { "x": 1002.92, "y": 110 },
+        { "x": 1012.45, "y": 120 },
+        { "x": 1019.28, "y": 130 },
+        { "x": 1024.16, "y": 140 },
+        { "x": 1027.46, "y": 150 },
+        { "x": 1029.37, "y": 160 },
+        { "x": 1030.00, "y": 170 },
+        { "x": 1029.37, "y": 180 },
+        { "x": 1027.46, "y": 190 },
+        { "x": 1024.16, "y": 200 },
+        { "x": 1019.28, "y": 210 },
+        { "x": 1012.45, "y": 220 },
+        { "x": 1002.92, "y": 230 },
+        { "x": 988.73, "y": 240 },
+        { "x": 980.00, "y": 245 },
+        { "x": 970.00, "y": 248 },
+        { "x": 960.00, "y": 249.5 },
+        { "x": 950.00, "y": 250 }
+      ]
+    },
+    {
+      "name": "mid_line",
+      "values": [
+        { "x": 200, "y": 250 },
+        { "x": 950, "y": 250 }
+      ]
+    },
+    {
+      "name": "left_curve",
+      "values": [
+        { "x": 200.00, "y": 250 },
+        { "x": 190.00, "y": 250.5 },
+        { "x": 180.00, "y": 252 },
+        { "x": 170.00, "y": 255 },
+        { "x": 161.27, "y": 260 },
+        { "x": 147.08, "y": 270 },
+        { "x": 137.55, "y": 280 },
+        { "x": 130.72, "y": 290 },
+        { "x": 125.84, "y": 300 },
+        { "x": 122.54, "y": 310 },
+        { "x": 120.63, "y": 320 },
+        { "x": 120.00, "y": 330 },
+        { "x": 120.63, "y": 340 },
+        { "x": 122.54, "y": 350 },
+        { "x": 125.84, "y": 360 },
+        { "x": 130.72, "y": 370 },
+        { "x": 137.55, "y": 380 },
+        { "x": 147.08, "y": 390 },
+        { "x": 161.27, "y": 400 },
+        { "x": 170.00, "y": 405 },
+        { "x": 180.00, "y": 408 },
+        { "x": 190.00, "y": 409.5 },
+        { "x": 200.00, "y": 410 }
+      ]
+    },
+    {
+      "name": "bottom_line",
+      "values": [
+        { "x": 200, "y": 410 },
+        { "x": 1000, "y": 410 }
+      ]
+    },
+
+    {
+      "name": "line_tickets",
+      "source": "dataset",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.Status != '09 Veiculo Liberado' && datum.Status != '11 Check Comprovei' && datum.Status != '03 Entrada' && datum.Status != '10 Provisório' && datum.Status != '06 Peso Final'"
+        },
+        {
+          "type": "window",
+          "groupby": ["Status"],
+          "sort": { "field": ["Numero_Processo"], "order": ["ascending"] },
+          "ops": ["row_number"],
+          "as": ["ordem"]
+        },
+        {
+          "type": "joinaggregate",
+          "groupby": ["Status"],
+          "ops": ["count"],
+          "fields": ["Numero_Processo"],
+          "as": ["statusCount"]
+        },
+        {
+          "type": "formula",
+          "expr": "datum.Status == '00 Registrado' ? topStartX + 20 + (datum.ordem / (datum.statusCount + 1)) * ((topDiv1 - 20) - (topStartX + 20)) : datum.Status == '01 Pré-Entrada' ? topDiv1 + 18 + (datum.ordem / (datum.statusCount + 1)) * ((topDiv2 - 18) - (topDiv1 + 18)) : datum.Status == '02 Chamado' ? topDiv2 + 18 + (datum.ordem / (datum.statusCount + 1)) * ((topEndX - 36) - (topDiv2 + 18)) : datum.Status == '05 Fim de Carregamento' ? midLeftX + 18 + (datum.ordem / (datum.statusCount + 1)) * ((midDiv - 18) - (midLeftX + 18)) : datum.Status == '04 Início de Carregamento' ? midDiv + 18 + (datum.ordem / (datum.statusCount + 1)) * ((midRightX - 24) - (midDiv + 18)) : datum.Status == '07 Recusado' ? botLeftX + 18 + (datum.ordem / (datum.statusCount + 1)) * ((botDiv - 18) - (botLeftX + 18)) : datum.Status == '08 Aprovado' ? botDiv + 18 + (datum.ordem / (datum.statusCount + 1)) * ((botRightX - 24) - (botDiv + 18)) : 500",
+          "as": "x"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.Status == '00 Registrado' || datum.Status == '01 Pré-Entrada' || datum.Status == '02 Chamado' ? topY : datum.Status == '05 Fim de Carregamento' || datum.Status == '04 Início de Carregamento' ? midY : botY",
+          "as": "y"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.y - (datum.ordem % 3 == 1 ? 16 : datum.ordem % 3 == 2 ? 28 : 40)",
+          "as": "labelY"
+        },
+        {
+          "type": "formula",
+          "expr": "'| ' + datum.Numero_Processo + ' |'",
+          "as": "ticketLabel"
+        }
+      ]
+    },
+
+    {
+      "name": "right_curve_raw",
+      "source": "dataset",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.Status != '09 Veiculo Liberado' && datum.Status != '11 Check Comprovei' && (datum.Status == '03 Entrada' || datum.Status == '10 Provisório')"
+        },
+        {
+          "type": "window",
+          "sort": { "field": ["Numero_Processo"], "order": ["ascending"] },
+          "ops": ["row_number"],
+          "as": ["ordem"]
+        },
+        {
+          "type": "joinaggregate",
+          "ops": ["count"],
+          "fields": ["Numero_Processo"],
+          "as": ["curveCount"]
+        }
+      ]
+    },
+
+    {
+      "name": "right_curve_small",
+      "source": "right_curve_raw",
+      "transform": [
+        { "type": "filter", "expr": "datum.curveCount <= 5" },
+        {
+          "type": "formula",
+          "expr": "datum.curveCount == 1 ? 3 : datum.curveCount == 2 ? (datum.ordem == 1 ? 2 : 4) : datum.curveCount == 3 ? (datum.ordem == 1 ? 2 : datum.ordem == 2 ? 3 : 4) : datum.curveCount == 4 ? datum.ordem : datum.ordem",
+          "as": "slot"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.slot == 1 ? 1002 : datum.slot == 2 ? 1024 : datum.slot == 3 ? 1030 : datum.slot == 4 ? 1024 : 1002",
+          "as": "x"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.slot == 1 ? 110 : datum.slot == 2 ? 140 : datum.slot == 3 ? 170 : datum.slot == 4 ? 200 : 230",
+          "as": "y"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.x + 16",
+          "as": "labelX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.y",
+          "as": "labelY"
+        },
+        {
+          "type": "formula",
+          "expr": "'| ' + datum.Numero_Processo + ' |'",
+          "as": "ticketLabel"
+        }
+      ]
+    },
+
+    {
+      "name": "right_curve_big",
+      "source": "right_curve_raw",
+      "transform": [
+        { "type": "filter", "expr": "datum.curveCount > 5" },
+        {
+          "type": "aggregate",
+          "ops": ["count"],
+          "fields": ["Numero_Processo"],
+          "as": ["ticketCount"]
+        },
+        {
+          "type": "formula",
+          "expr": "1030",
+          "as": "x"
+        },
+        {
+          "type": "formula",
+          "expr": "170",
+          "as": "y"
+        }
+      ]
+    },
+
+    {
+      "name": "left_curve_raw",
+      "source": "dataset",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.Status != '09 Veiculo Liberado' && datum.Status != '11 Check Comprovei' && datum.Status == '06 Peso Final'"
+        },
+        {
+          "type": "window",
+          "sort": { "field": ["Numero_Processo"], "order": ["ascending"] },
+          "ops": ["row_number"],
+          "as": ["ordem"]
+        },
+        {
+          "type": "joinaggregate",
+          "ops": ["count"],
+          "fields": ["Numero_Processo"],
+          "as": ["curveCount"]
+        }
+      ]
+    },
+
+    {
+      "name": "left_curve_small",
+      "source": "left_curve_raw",
+      "transform": [
+        { "type": "filter", "expr": "datum.curveCount <= 5" },
+        {
+          "type": "formula",
+          "expr": "datum.curveCount == 1 ? 3 : datum.curveCount == 2 ? (datum.ordem == 1 ? 2 : 4) : datum.curveCount == 3 ? (datum.ordem == 1 ? 2 : datum.ordem == 2 ? 3 : 4) : datum.curveCount == 4 ? datum.ordem : datum.ordem",
+          "as": "slot"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.slot == 1 ? 148 : datum.slot == 2 ? 126 : datum.slot == 3 ? 120 : datum.slot == 4 ? 126 : 148",
+          "as": "x"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.slot == 1 ? 270 : datum.slot == 2 ? 300 : datum.slot == 3 ? 330 : datum.slot == 4 ? 360 : 390",
+          "as": "y"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.x + 16",
+          "as": "labelX"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.y",
+          "as": "labelY"
+        },
+        {
+          "type": "formula",
+          "expr": "'| ' + datum.Numero_Processo + ' |'",
+          "as": "ticketLabel"
+        }
+      ]
+    },
+
+    {
+      "name": "left_curve_big",
+      "source": "left_curve_raw",
+      "transform": [
+        { "type": "filter", "expr": "datum.curveCount > 5" },
+        {
+          "type": "aggregate",
+          "ops": ["count"],
+          "fields": ["Numero_Processo"],
+          "as": ["ticketCount"]
+        },
+        {
+          "type": "formula",
+          "expr": "120",
+          "as": "x"
+        },
+        {
+          "type": "formula",
+          "expr": "330",
+          "as": "y"
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "ticketColor",
+      "type": "ordinal",
+      "domain": [
+        "Hoje",
+        "1 Dia",
+        "Até 1 Dia",
+        "Até 3 Dias",
+        "Até 5 Dias",
+        "Até 7 Dias",
+        "Até 14 Dias",
+        "Até 30 Dias",
+        "Até 60 Dias",
+        "> 60 dias"
+      ],
+      "range": [
+        "#414FB1",
+        "#049746",
+        "#049746",
+        "#00682F",
+        "#005326",
+        "#E1C233",
+        "#D8530B",
+        "#D41111",
+        "#680080",
+        "#380045"
+      ]
+    }
+  ],
+ 
+  "marks": [
+    {
+      "type": "line",
+      "from": { "data": "top_line" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y" },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 5 },
+          "strokeCap": { "value": "round" }
+        }
+      }
+    },
+    {
+      "type": "line",
+      "from": { "data": "right_curve" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y" },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 5 },
+          "strokeCap": { "value": "round" },
+          "strokeJoin": { "value": "round" }
+        }
+      }
+    },
+    {
+      "type": "line",
+      "from": { "data": "mid_line" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y" },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 5 },
+          "strokeCap": { "value": "round" }
+        }
+      }
+    },
+    {
+      "type": "line",
+      "from": { "data": "left_curve" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y" },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 5 },
+          "strokeCap": { "value": "round" },
+          "strokeJoin": { "value": "round" }
+        }
+      }
+    },
+    {
+      "type": "line",
+      "from": { "data": "bottom_line" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y" },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 5 },
+          "strokeCap": { "value": "round" }
+        }
+      }
+    },
+
+    {
+      "type": "rule",
+      "encode": {
+        "enter": {
+          "x": { "signal": "topDiv1" },
+          "y": { "signal": "topY - 14" },
+          "y2": { "signal": "topY + 14" },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 3 }
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "encode": {
+        "enter": {
+          "x": { "signal": "topDiv2" },
+          "y": { "signal": "topY - 14" },
+          "y2": { "signal": "topY + 14" },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 3 }
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "encode": {
+        "enter": {
+          "x": { "signal": "midDiv" },
+          "y": { "signal": "midY - 14" },
+          "y2": { "signal": "midY + 14" },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 3 }
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "encode": {
+        "enter": {
+          "x": { "signal": "botDiv" },
+          "y": { "signal": "botY - 14" },
+          "y2": { "signal": "botY + 14" },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 3 }
+        }
+      }
+    },
+
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "x": { "signal": "regCenter" },
+          "y": { "value": 118 },
+          "text": { "value": "Registrado" },
+          "fontSize": { "value": 16 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "value": "black" },
+          "align": { "value": "center" },
+          "baseline": { "value": "top" }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "x": { "signal": "preCenter" },
+          "y": { "value": 118 },
+          "text": { "value": "Pré-Entrada" },
+          "fontSize": { "value": 16 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "value": "black" },
+          "align": { "value": "center" },
+          "baseline": { "value": "top" }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "x": { "signal": "callCenter" },
+          "y": { "value": 118 },
+          "text": { "value": "Chamado" },
+          "fontSize": { "value": 16 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "value": "black" },
+          "align": { "value": "center" },
+          "baseline": { "value": "top" }
+        }
+      }
+    },
+
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "x": { "signal": "fimCenter" },
+          "y": { "value": 278 },
+          "text": { "value": "Fim de Carregamento" },
+          "fontSize": { "value": 16 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "value": "black" },
+          "align": { "value": "center" },
+          "baseline": { "value": "top" }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "x": { "signal": "iniCenter" },
+          "y": { "value": 278 },
+          "text": { "value": "Início de Carregamento" },
+          "fontSize": { "value": 16 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "value": "black" },
+          "align": { "value": "center" },
+          "baseline": { "value": "top" }
+        }
+      }
+    },
+
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "x": { "signal": "recCenter" },
+          "y": { "value": 430 },
+          "text": { "value": "Recusado" },
+          "fontSize": { "value": 16 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "value": "black" },
+          "align": { "value": "center" },
+          "baseline": { "value": "top" }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "x": { "signal": "aprCenter" },
+          "y": { "value": 430 },
+          "text": { "value": "Aprovado" },
+          "fontSize": { "value": 16 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "value": "black" },
+          "align": { "value": "center" },
+          "baseline": { "value": "top" }
+        }
+      }
+    },
+
+    {
+      "type": "symbol",
+      "from": { "data": "line_tickets" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y" },
+          "size": { "value": 150 },
+          "fill": { "scale": "ticketColor", "field": "CPs_em_Aberto" },
+          "stroke": { "value": "white" },
+          "strokeWidth": { "value": 1.2 },
+          "tooltip": {
+            "signal": "{'Ticket': datum.Numero_Processo, 'Status': datum.Status, 'Classificação': datum.CPs_em_Aberto}"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": { "data": "line_tickets" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "labelY" },
+          "text": { "field": "ticketLabel" },
+          "fontSize": { "value": 11 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "scale": "ticketColor", "field": "CPs_em_Aberto" },
+          "align": { "value": "center" },
+          "baseline": { "value": "bottom" }
+        }
+      }
+    },
+
+    {
+      "type": "symbol",
+      "from": { "data": "right_curve_small" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y" },
+          "size": { "value": 160 },
+          "fill": { "scale": "ticketColor", "field": "CPs_em_Aberto" },
+          "stroke": { "value": "white" },
+          "strokeWidth": { "value": 1.2 },
+          "tooltip": {
+            "signal": "{'Ticket': datum.Numero_Processo, 'Status': datum.Status, 'Classificação': datum.CPs_em_Aberto}"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": { "data": "right_curve_small" },
+      "encode": {
+        "enter": {
+          "x": { "field": "labelX" },
+          "y": { "field": "labelY" },
+          "text": { "field": "ticketLabel" },
+          "fontSize": { "value": 11 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "scale": "ticketColor", "field": "CPs_em_Aberto" },
+          "align": { "value": "left" },
+          "baseline": { "value": "middle" }
+        }
+      }
+    },
+
+    {
+      "type": "symbol",
+      "from": { "data": "right_curve_big" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y" },
+          "size": { "value": 650 },
+          "fill": { "value": "black" },
+          "stroke": { "value": "white" },
+          "strokeWidth": { "value": 1.2 },
+          "tooltip": {
+            "signal": "{'Quantidade de tickets': datum.ticketCount}"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": { "data": "right_curve_big" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y", "offset": 1 },
+          "text": { "field": "ticketCount" },
+          "fontSize": { "value": 18 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "value": "white" },
+          "align": { "value": "center" },
+          "baseline": { "value": "middle" }
+        }
+      }
+    },
+
+    {
+      "type": "symbol",
+      "from": { "data": "left_curve_small" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y" },
+          "size": { "value": 160 },
+          "fill": { "scale": "ticketColor", "field": "CPs_em_Aberto" },
+          "stroke": { "value": "white" },
+          "strokeWidth": { "value": 1.2 },
+          "tooltip": {
+            "signal": "{'Ticket': datum.Numero_Processo, 'Status': datum.Status, 'Classificação': datum.CPs_em_Aberto}"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": { "data": "left_curve_small" },
+      "encode": {
+        "enter": {
+          "x": { "field": "labelX" },
+          "y": { "field": "labelY" },
+          "text": { "field": "ticketLabel" },
+          "fontSize": { "value": 11 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "scale": "ticketColor", "field": "CPs_em_Aberto" },
+          "align": { "value": "left" },
+          "baseline": { "value": "middle" }
+        }
+      }
+    },
+
+    {
+      "type": "symbol",
+      "from": { "data": "left_curve_big" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y" },
+          "size": { "value": 650 },
+          "fill": { "value": "black" },
+          "stroke": { "value": "white" },
+          "strokeWidth": { "value": 1.2 },
+          "tooltip": {
+            "signal": "{'Quantidade de tickets': datum.ticketCount}"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": { "data": "left_curve_big" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y", "offset": 1 },
+          "text": { "field": "ticketCount" },
+          "fontSize": { "value": 18 },
+          "font": { "value": "Segoe UI" },
+          "fill": { "value": "white" },
+          "align": { "value": "center" },
+          "baseline": { "value": "middle" }
+        }
+      }
+    }
+  ]
+}
