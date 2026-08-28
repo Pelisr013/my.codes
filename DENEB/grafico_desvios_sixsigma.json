@@ -1,0 +1,133 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+
+  "transform": [
+    {
+      "filter": "datum.Classe_Desvio != 'OK'"
+    },
+    {
+      "calculate": "datum.Classe_Desvio == '< -80%' ? 1 : datum.Classe_Desvio == '-80 a -60' ? 2 : datum.Classe_Desvio == '-60 a -40' ? 3 : datum.Classe_Desvio == '-40 a -20' ? 4 : datum.Classe_Desvio == '-20 a -06' ? 5 : datum.Classe_Desvio == '-06 a -04' ? 6 : datum.Classe_Desvio == '-04 a -02' ? 7 : datum.Classe_Desvio == '-02 a 0' ? 8 : datum.Classe_Desvio == '0 a 02' ? 9 : datum.Classe_Desvio == '02 a 04' ? 10 : datum.Classe_Desvio == '04 a 06' ? 11 : datum.Classe_Desvio == '06 a 20' ? 12 : datum.Classe_Desvio == '20 a 40' ? 13 : datum.Classe_Desvio == '40 a 60' ? 14 : datum.Classe_Desvio == '60 a 80' ? 15 : datum.Classe_Desvio == '> 80%' ? 16 : null",
+      "as": "ordem_classe"
+    },
+    {
+      "impute": "T de CPs",
+      "key": "ordem_classe",
+      "keyvals": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
+      "value": 0
+    },
+    {
+      "calculate": "datum.ordem_classe == 1 ? '< -80%' : datum.ordem_classe == 2 ? '-80 a -60' : datum.ordem_classe == 3 ? '-60 a -40' : datum.ordem_classe == 4 ? '-40 a -20' : datum.ordem_classe == 5 ? '-20 a -06' : datum.ordem_classe == 6 ? '-06 a -04' : datum.ordem_classe == 7 ? '-04 a -02' : datum.ordem_classe == 8 ? '-02 a 0' : datum.ordem_classe == 9 ? '0 a 02' : datum.ordem_classe == 10 ? '02 a 04' : datum.ordem_classe == 11 ? '04 a 06' : datum.ordem_classe == 12 ? '06 a 20' : datum.ordem_classe == 13 ? '20 a 40' : datum.ordem_classe == 14 ? '40 a 60' : datum.ordem_classe == 15 ? '60 a 80' : '> 80%'",
+      "as": "Classe_Label"
+    },
+    {
+      "calculate": "datum.ordem_classe == 1 || datum.ordem_classe == 16 ? '#50005C' : indexof([2,3,4,5,12,13,14,15], datum.ordem_classe) >= 0 ? '#FF0000' : indexof([6,7,10,11], datum.ordem_classe) >= 0 ? '#FFC000' : '#00B050'",
+      "as": "cor_barra"
+    }
+  ],
+
+  "layer": [
+    {
+      "mark": {
+        "type": "bar"
+      },
+      "encoding": {
+        "x": {
+          "field": "ordem_classe",
+          "type": "ordinal",
+          "sort": "ascending",
+          "axis": {
+            "title": null,
+            "labelAngle": 0,
+            "labelFontSize": 14,
+            "labelColor": "#333333",
+            "labelPadding": 8,
+            "tickSize": 3,
+            "grid": false,
+            "labelExpr": "datum.value == 1 ? '< -80%' : datum.value == 2 ? '-80 a -60' : datum.value == 3 ? '-60 a -40' : datum.value == 4 ? '-40 a -20' : datum.value == 5 ? '-20 a -06' : datum.value == 6 ? '-06 a -04' : datum.value == 7 ? '-04 a -02' : datum.value == 8 ? '-02 a 0' : datum.value == 9 ? '0 a 02' : datum.value == 10 ? '02 a 04' : datum.value == 11 ? '04 a 06' : datum.value == 12 ? '06 a 20' : datum.value == 13 ? '20 a 40' : datum.value == 14 ? '40 a 60' : datum.value == 15 ? '60 a 80' : '> 80%'"
+          }
+        },
+        "y": {
+          "field": "T de CPs",
+          "type": "quantitative",
+          "axis": {
+            "title": null,
+            "labelFontSize": 14,
+            "labelColor": "#333333",
+            "grid": false
+          }
+        },
+        "color": {
+          "field": "cor_barra",
+          "type": "nominal",
+          "scale": null,
+          "legend": null
+        },
+        "tooltip": [
+          { "field": "Classe_Label", "type": "nominal", "title": "Classe" },
+          { "field": "T de CPs", "type": "quantitative", "title": "Quantidade" }
+        ]
+      }
+    },
+    {
+      "transform": [
+        { "filter": "datum['T de CPs'] > 0" }
+      ],
+      "mark": {
+        "type": "text",
+        "dy": -8,
+        "fontSize": 18,
+        "color": "#333333"
+      },
+      "encoding": {
+        "x": {
+          "field": "ordem_classe",
+          "type": "ordinal",
+          "sort": "ascending"
+        },
+        "y": {
+          "field": "T de CPs",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "T de CPs",
+          "type": "quantitative",
+          "format": ".0f"
+        }
+      }
+    },
+    {
+      "data": {
+        "values": [
+          { "ordem_classe": 9 }
+        ]
+      },
+      "mark": {
+        "type": "rule",
+        "strokeDash": [6, 4],
+        "strokeWidth": 2,
+        "color": "gray"
+      },
+      "encoding": {
+        "x": {
+          "field": "ordem_classe",
+          "type": "ordinal",
+          "bandPosition": -0.05
+        }
+      }
+    }
+  ],
+
+  "config": {
+    "background": null,
+    "view": {
+      "stroke": null,
+      "fill": null
+    },
+    "axis": {
+      "domainColor": "#666666",
+      "domainWidth": 1,
+      "tickColor": "#666666"
+    }
+  }
+}
