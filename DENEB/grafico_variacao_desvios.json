@@ -1,0 +1,469 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+
+  "background": null,
+
+  "autosize": {
+    "type": "fit-y",
+    "contains": "padding",
+    "resize": true
+  },
+
+  "width": {
+    "signal": "length(data('dataset')) <= 25 ? max(200, pbiContainer.width - 50) : length(data('dataset')) * 55"
+  },
+
+  "height": 505,
+
+  "data": [
+    {
+      "name": "dataset",
+      "transform": [
+        {
+          "type": "formula",
+          "as": "Qtd_Tickets_Com_Desvio_num",
+          "expr": "toNumber(datum.Qtd_Tickets_Com_Desvio)"
+        },
+        {
+          "type": "filter",
+          "expr": "isValid(datum.Qtd_Tickets_Com_Desvio_num) && isFinite(datum.Qtd_Tickets_Com_Desvio_num) && datum.Qtd_Tickets_Com_Desvio_num > 1"
+        },
+        {
+          "type": "formula",
+          "as": "M_Desvio_Geral_num",
+          "expr": "toNumber(datum.M_Desvio_Geral)"
+        },
+        {
+          "type": "formula",
+          "as": "M_Desvio_Positivo_num",
+          "expr": "toNumber(datum.M_Desvio_Positivo)"
+        },
+        {
+          "type": "formula",
+          "as": "M_Desvio_Negativo_num",
+          "expr": "toNumber(datum.M_Desvio_Negativo)"
+        },
+        {
+          "type": "formula",
+          "as": "material_curto",
+          "expr": "length(datum.Descricao_Do_Material) > 15 ? substring(datum.Descricao_Do_Material, 0, 15) + '…' : datum.Descricao_Do_Material"
+        },
+        {
+          "type": "formula",
+          "as": "pos_ok",
+          "expr": "datum.M_Desvio_Positivo_num > datum.M_Desvio_Geral_num ? datum.M_Desvio_Positivo_num : datum.M_Desvio_Geral_num"
+        },
+        {
+          "type": "formula",
+          "as": "neg_ok",
+          "expr": "datum.M_Desvio_Negativo_num < datum.M_Desvio_Geral_num ? datum.M_Desvio_Negativo_num : datum.M_Desvio_Geral_num"
+        },
+        {
+          "type": "formula",
+          "as": "score",
+          "expr": "abs(datum.pos_ok) + abs(datum.neg_ok)"
+        },
+        {
+          "type": "formula",
+          "as": "tem_mais_de_um_valor",
+          "expr": "((isValid(datum.M_Desvio_Positivo_num) && isFinite(datum.M_Desvio_Positivo_num) && datum.M_Desvio_Positivo_num != 0 && datum.M_Desvio_Positivo_num != datum.M_Desvio_Geral_num) || (isValid(datum.M_Desvio_Negativo_num) && isFinite(datum.M_Desvio_Negativo_num) && datum.M_Desvio_Negativo_num != 0 && datum.M_Desvio_Negativo_num != datum.M_Desvio_Geral_num) || ((isValid(datum.M_Desvio_Positivo_num) && isFinite(datum.M_Desvio_Positivo_num) && datum.M_Desvio_Positivo_num != 0) && (isValid(datum.M_Desvio_Negativo_num) && isFinite(datum.M_Desvio_Negativo_num) && datum.M_Desvio_Negativo_num != 0)))"
+        },
+        {
+          "type": "formula",
+          "as": "score_rank",
+          "expr": "datum.tem_mais_de_um_valor ? datum.score : -999999"
+        },
+        {
+          "type": "collect",
+          "sort": {
+            "field": "score_rank",
+            "order": "descending"
+          }
+        },
+        {
+          "type": "window",
+          "ops": ["rank"],
+          "as": ["rank"]
+        },
+        {
+          "type": "formula",
+          "as": "is_top3",
+          "expr": "datum.rank <= 3 && datum.tem_mais_de_um_valor"
+        }
+      ]
+    },
+
+    {
+      "name": "y_domain",
+      "source": "dataset",
+      "transform": [
+        {
+          "type": "aggregate",
+          "fields": ["neg_ok", "pos_ok"],
+          "ops": ["min", "max"],
+          "as": ["min_y", "max_y"]
+        },
+        {
+          "type": "formula",
+          "as": "min_y_pad",
+          "expr": "datum.min_y - 0.5"
+        },
+        {
+          "type": "formula",
+          "as": "max_y_pad",
+          "expr": "datum.max_y + 0.25"
+        }
+      ]
+    },
+
+    {
+      "name": "cap_positivo",
+      "source": "dataset",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "isValid(datum.M_Desvio_Positivo_num) && isFinite(datum.M_Desvio_Positivo_num) && datum.M_Desvio_Positivo_num != 0"
+        }
+      ]
+    },
+
+    {
+      "name": "cap_negativo",
+      "source": "dataset",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "isValid(datum.M_Desvio_Negativo_num) && isFinite(datum.M_Desvio_Negativo_num) && datum.M_Desvio_Negativo_num != 0"
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "xscale",
+      "type": "band",
+      "domain": {
+        "data": "dataset",
+        "field": "material_curto",
+        "sort": true
+      },
+      "range": "width",
+      "padding": 0.2
+    },
+    {
+      "name": "yscale",
+      "domain": {
+        "data": "y_domain",
+        "fields": ["min_y_pad", "max_y_pad"]
+      },
+      "nice": true,
+      "range": "height"
+    }
+  ],
+
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "xscale",
+      "labelAngle": -90,
+      "labelFontSize": 12,
+      "labelAlign": "right",
+      "labelBaseline": "middle",
+      "labelOffset": -0,
+      "tickOffset": -9,
+      "title": null
+    },
+    {
+      "orient": "left",
+      "scale": "yscale",
+      "format": ".1f",
+      "labelFontSize": 12,
+      "grid": true,
+      "gridOpacity": 0.2,
+      "title": null
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "rect",
+      "from": {
+        "data": "dataset"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "scale": "xscale",
+            "field": "material_curto"
+          },
+          "width": {
+            "scale": "xscale",
+            "band": 0.6
+          },
+          "y": {
+            "scale": "yscale",
+            "signal": "datum.M_Desvio_Geral_num >= 0 ? datum.M_Desvio_Geral_num : 0"
+          },
+          "y2": {
+            "scale": "yscale",
+            "signal": "datum.M_Desvio_Geral_num >= 0 ? 0 : datum.M_Desvio_Geral_num"
+          },
+          "fill": {
+            "value": "#E0E0E0"
+          },
+          "stroke": {
+            "signal": "datum.is_top3 ? '#E53935' : '#333'"
+          },
+          "strokeWidth": {
+            "signal": "datum.is_top3 ? 2.5 : 1"
+          }
+        }
+      }
+    },
+
+    {
+      "type": "rule",
+      "from": {
+        "data": "dataset"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "signal": "scale('xscale', datum.material_curto) + bandwidth('xscale') * 0.3"
+          },
+          "y": {
+            "scale": "yscale",
+            "signal": "datum.M_Desvio_Geral_num >= 0 ? datum.M_Desvio_Geral_num : 0"
+          },
+          "y2": {
+            "scale": "yscale",
+            "field": "pos_ok"
+          },
+          "stroke": {
+            "signal": "datum.is_top3 ? '#E53935' : '#333'"
+          },
+          "strokeWidth": {
+            "value": 1.5
+          }
+        }
+      }
+    },
+
+    {
+      "type": "rule",
+      "from": {
+        "data": "dataset"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "signal": "scale('xscale', datum.material_curto) + bandwidth('xscale') * 0.3"
+          },
+          "y": {
+            "scale": "yscale",
+            "signal": "datum.M_Desvio_Geral_num <= 0 ? datum.M_Desvio_Geral_num : 0"
+          },
+          "y2": {
+            "scale": "yscale",
+            "field": "neg_ok"
+          },
+          "stroke": {
+            "signal": "datum.is_top3 ? '#E53935' : '#333'"
+          },
+          "strokeWidth": {
+            "value": 1.5
+          }
+        }
+      }
+    },
+
+    {
+      "type": "rule",
+      "from": {
+        "data": "cap_positivo"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "scale": "xscale",
+            "field": "material_curto",
+            "band": 0
+          },
+          "x2": {
+            "scale": "xscale",
+            "field": "material_curto",
+            "band": 0.6
+          },
+          "y": {
+            "scale": "yscale",
+            "field": "pos_ok"
+          },
+          "stroke": {
+            "signal": "datum.is_top3 ? '#E53935' : '#333'"
+          },
+          "strokeWidth": {
+            "value": 2
+          }
+        }
+      }
+    },
+
+    {
+      "type": "rule",
+      "from": {
+        "data": "cap_negativo"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "scale": "xscale",
+            "field": "material_curto",
+            "band": 0
+          },
+          "x2": {
+            "scale": "xscale",
+            "field": "material_curto",
+            "band": 0.6
+          },
+          "y": {
+            "scale": "yscale",
+            "field": "neg_ok"
+          },
+          "stroke": {
+            "signal": "datum.is_top3 ? '#E53935' : '#333'"
+          },
+          "strokeWidth": {
+            "value": 2
+          }
+        }
+      }
+    },
+
+    {
+      "type": "text",
+      "from": {
+        "data": "dataset"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "signal": "scale('xscale', datum.material_curto) + bandwidth('xscale') * 0.3"
+          },
+          "y": {
+            "scale": "yscale",
+            "field": "pos_ok"
+          },
+          "dy": {
+            "value": -8
+          },
+          "text": {
+            "signal": "isValid(datum.pos_ok) && isFinite(datum.pos_ok) && datum.pos_ok != 0 ? format(datum.pos_ok, '.1f') : ''"
+          },
+          "align": {
+            "value": "center"
+          },
+          "fontWeight": {
+            "value": "bold"
+          },
+          "fontSize": {
+            "value": 12
+          }
+        }
+      }
+    },
+
+    {
+      "type": "text",
+      "from": {
+        "data": "dataset"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "signal": "scale('xscale', datum.material_curto) + bandwidth('xscale') * 0.3"
+          },
+          "y": {
+            "scale": "yscale",
+            "signal": "isValid(datum.M_Desvio_Geral_num) && isFinite(datum.M_Desvio_Geral_num) ? datum.M_Desvio_Geral_num / 2 : 0"
+          },
+          "text": {
+            "signal": "isValid(datum.M_Desvio_Geral_num) && isFinite(datum.M_Desvio_Geral_num) ? format(datum.M_Desvio_Geral_num, '.1f') : ''"
+          },
+          "align": {
+            "value": "center"
+          },
+          "baseline": {
+            "value": "middle"
+          },
+          "fontWeight": {
+            "value": "bold"
+          },
+          "fontSize": {
+            "value": 10
+          },
+          "fill": {
+            "value": "#000000"
+          }
+        }
+      }
+    },
+
+    {
+      "type": "text",
+      "from": {
+        "data": "dataset"
+      },
+      "encode": {
+        "update": {
+          "x": {
+            "signal": "scale('xscale', datum.material_curto) + bandwidth('xscale') * 0.3"
+          },
+          "y": {
+            "scale": "yscale",
+            "field": "neg_ok"
+          },
+          "dy": {
+            "value": 12
+          },
+          "text": {
+            "signal": "isValid(datum.neg_ok) && isFinite(datum.neg_ok) && datum.neg_ok != 0 ? format(datum.neg_ok, '.1f') : ''"
+          },
+          "align": {
+            "value": "center"
+          },
+          "fontWeight": {
+            "value": "bold"
+          },
+          "fontSize": {
+            "value": 12
+          }
+        }
+      }
+    },
+
+    {
+      "type": "rule",
+      "encode": {
+        "update": {
+          "y": {
+            "scale": "yscale",
+            "value": 0
+          },
+          "x": {
+            "value": 0
+          },
+          "x2": {
+            "signal": "width"
+          },
+          "stroke": {
+            "value": "gray"
+          },
+          "strokeDash": {
+            "value": [4, 4]
+          }
+        }
+      }
+    }
+  ]
+}
