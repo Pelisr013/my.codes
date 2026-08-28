@@ -1,0 +1,9 @@
+Performance LY = 
+    CALCULATE(
+        [Performance],
+        DATEADD(
+            DimCalendario[Data],
+            -1,
+            YEAR
+        )
+    )
