@@ -1,0 +1,76 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "name": "dataset"
+  },
+
+  "layer": [
+    {
+      "mark": {
+        "type": "point",
+        "filled": true,
+        "size": 20,
+        "opacity": 0.85
+      },
+      "encoding": {
+        "x": {
+          "field": "ts_registrado",
+          "type": "temporal",
+          "title": null,
+          "axis": {
+            "format": "%d/%m/%Y",
+            "labelAngle": -45,
+            "labelFontSize": 13,
+            "labelAlign": "right",
+            "labelPadding": 6,
+            "tickMinStep": 86400000,
+            "grid": true
+          }
+        },
+        "y": {
+          "field": "Desvio",
+          "type": "quantitative",
+          "title": null,
+          "axis": {
+            "labelFontSize": 12,
+            "titleFontSize": 13,
+            "labelPadding": 4,
+            "grid": true
+          }
+        },
+        "color": {
+          "condition": {
+            "test": "datum.Desvio > 0",
+            "value": "#002060"
+          },
+          "value": "#0070C0"
+        }
+      }
+    },
+
+    {
+      "mark": {
+        "type": "rule",
+        "color": "red",
+        "size": 3
+      },
+      "encoding": {
+        "y": {
+          "datum": 0
+        }
+      }
+    }
+  ],
+
+  "config": {
+    "background": null,
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "gridDash": [4, 4],
+      "gridOpacity": 0.5,
+      "tickSize": 5
+    }
+  }
+}
