@@ -13,11 +13,11 @@ Patch(
         Transportadora: CBoxTransportadora.Selected.Value;
         Destino: CBoxDestino.Selected.Value;
         Motivo: {Value: CBoxMotivo.Selected.Value};
-        Observacoes: TTMultObservacoes.Text;
-        TrocaGuia: CSelTrocaGuia.Cheked;
-        TrocaCarreta: CSelTrocaCarreta.Cheked;
-        EnviarPDF: CSelEnviarPDF.Cheked;
-        CancelarGuia: CSelCancelarGuia.Cheked;
+        EmissaoGuia: CSelEmissaoGuia.Value;
+        TrocaGuia: CSelTrocaGuia.Value;
+        TrocaCarreta: CSelTrocaCarreta.Value;
+        EnviarPDF: CSelEnviarPDF.Value;
+        CancelarGuia: CSelCancelarGuia.Value;
         Status: {Value: CBoxStatus.Selected.Value}
     }
 )
