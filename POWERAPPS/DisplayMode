@@ -1,0 +1,38 @@
+If(
+    IsBlank(CBoxCavalo.Selected.Value) ||
+    IsBlank(CBoxDestino.Selected.Value) ||
+    IsBlank(CBoxCPF.Selected.Value) ||
+    IsBlank(CBoxMotorista.Selected.Value) ||
+    IsBlank(CBoxCodigo.Selected.Value) ||
+    IsBlank(CBoxTransportadora.Selected.Value) ||
+    IsBlank(CBoxMotivo.Selected.Value) ||
+
+    !(
+        ChkEmissaoGuia.Value ||
+        ChkTrocaGuia.Value ||
+        ChkTrocaCarreta.Value ||
+        ChkCancelarGuia.Value
+    );
+
+    DisplayMode.Disabled;
+    DisplayMode.Edit
+)
+=================================================================================================
+Concatenate(
+    If(IsBlank(CBoxCavalo.Selected.Value); "• Selecione o Cavalo" & Char(10); "");
+    If(IsBlank(CBoxDestino.Selected.Value); "• Selecione o Destino" & Char(10); "");
+    If(IsBlank(CBoxCPF.Selected.Value); "• Selecione o CPF" & Char(10); "");
+    If(IsBlank(CBoxMotorista.Selected.Value); "• Selecione o Motorista" & Char(10); "");
+    If(IsBlank(CBoxCodigo.Selected.Value); "• Selecione o Código" & Char(10); "");
+    If(IsBlank(CBoxTransportadora.Selected.Value); "• Selecione a Transportadora" & Char(10); "");
+    If(
+        !(
+            CSelEmissaoGuia.Value ||
+            CSelTrocaGuia.Value ||
+            CSelTrocaCarreta.Value ||
+            CSelCancelarGuia.Value
+        );
+        "• Selecione um tipo de solicitação" & Char(10);
+        ""
+    )
+)
