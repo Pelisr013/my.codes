@@ -1,23 +1,92 @@
-Patch(
-    solicitacoesViagens;
-    Defaults(solicitacoesViagens);
-    {
-        Title: CBoxCavalo.Selected.Value & " - " & Text(Now(); "yyyymmddhhmmss");
-        Cavalo: CBoxCavalo.Selected.Value;
-        Reboque1: CBoxReboque1.Selected.Value;
-        Reboque2: CBoxReboque2.Selected.Value;
-        Composicao: CBoxComposição.Selected.Value;
-        CPF: CBoxCPF.Selected.Value;
-        Motorista: CBoxMotorista.Selected.Value;
-        CodigoTransportadora: Value(CBoxCodigo.Selected.Value);
-        Transportadora: CBoxTransportadora.Selected.Value;
-        Destino: CBoxDestino.Selected.Value;
-        Motivo: {Value: CBoxMotivo.Selected.Value};
-        EmissaoGuia: CSelEmissaoGuia.Value;
-        TrocaGuia: CSelTrocaGuia.Value;
-        TrocaCarreta: CSelTrocaCarreta.Value;
-        EnviarPDF: CSelEnviarPDF.Value;
-        CancelarGuia: CSelCancelarGuia.Value;
-        Status: {Value: CBoxStatus.Selected.Value}
-    }
+If(
+    IsBlank(CBoxCavalo.Selected.Value) ||
+    IsBlank(CBoxDestino.Selected.Value) ||
+    IsBlank(CBoxCPF.Selected.Value) ||
+    IsBlank(CBoxMotorista.Selected.Value) ||
+    IsBlank(CBoxCodigo.Selected.Value) ||
+    IsBlank(CBoxTransportadora.Selected.Value) ||
+    IsBlank(CBoxMotivo.Selected.Value) ||
+
+    !(
+        CSelEmissaoGuia.Value ||
+        CSelTrocaGuia.Value ||
+        CSelTrocaCarreta.Value ||
+        CSelCancelarGuia.Value
+    );
+
+    /* ERRO DE VALIDAÇÃO */
+
+    Set(varMostrarErroTipoSolicitacao; false);;
+    Set(varMostrarErroTipoSolicitacao; true);;
+    Set(varMostrarErros; true);;
+
+    Notify(
+        "Existem campos obrigatórios não preenchidos. Os campos destacados precisam de atenção.";
+        NotificationType.Warning;
+        5000
+    );
+
+    /* SUCESSO DA VALIDAÇÃO */
+
+    Patch(
+        solicitacoesViagens;
+        Defaults(solicitacoesViagens);
+        {
+            Title: CBoxCavalo.Selected.Value & " - " & Text(Now(); "yyyymmddhhmmss");
+            Cavalo: CBoxCavalo.Selected.Value;
+            Reboque1: CBoxReboque1.Selected.Value;
+            Reboque2: CBoxReboque2.Selected.Value;
+            Composicao: CBoxComposição.Selected.Value;
+            CPF: CBoxCPF.Selected.Value;
+            Motorista: CBoxMotorista.Selected.Value;
+            CodigoTransportadora: Value(CBoxCodigo.Selected.Value);
+            Transportadora: CBoxTransportadora.Selected.Value;
+            Destino: CBoxDestino.Selected.Value;
+            Motivo: {Value: CBoxMotivo.Selected.Value};
+            Observacoes: TTMultObservacoes.Text;
+            EmissaoGuia: CSelEmissaoGuia.Value;
+            TrocaGuia: CSelTrocaGuia.Value;
+            TrocaCarreta: CSelTrocaCarreta.Value;
+            EnviarPDF: CSelEnviarPDF.Value;
+            CancelarGuia: CSelCancelarGuia.Value;
+            Status: {Value: CBoxStatus.Selected.Value}
+        }
+    );;
+
+    If(
+        IsEmpty(Errors(solicitacoesViagens));
+
+        Notify(
+            "✅ Solicitação criada com sucesso!";
+            NotificationType.Success;
+            5000
+        );;
+
+        Reset(CBoxCavalo);;
+        Reset(CBoxDestino);;
+        Reset(CBoxCPF);;
+        Reset(CBoxMotorista);;
+        Reset(CBoxCodigo);;
+        Reset(CBoxTransportadora);;
+        Reset(CBoxMotivo);;
+        Reset(TTMultObservacoes);;
+        Reset(CBoxReboque1);;
+        Reset(CBoxReboque2);;
+        Reset(CBoxComposição);;
+
+        Reset(CSelEmissaoGuia);;
+        Reset(CSelTrocaGuia);;
+        Reset(CSelTrocaCarreta);;
+        Reset(CSelEnviarPDF);;
+        Reset(CSelCancelarGuia);;
+
+        Set(varMostrarErros; false);;
+        Set(varMostrarErroTipoSolicitacao; false);
+
+        Notify(
+            First(Errors(solicitacoesViagens)).Message;
+            NotificationType.Error;
+            5000
+        )
+    )
 )
