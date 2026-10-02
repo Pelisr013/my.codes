@@ -8,10 +8,10 @@ If(
     IsBlank(CBoxMotivo.Selected.Value) ||
 
     !(
-        CSelEmissaoGuia.Value ||
-        CSelTrocaGuia.Value ||
-        CSelTrocaCarreta.Value ||
-        CSelCancelarGuia.Value
+        ToggleEmissãoNota_2.Value ||
+        ToggleTrocaGuia_2.Value ||
+        ToggleTrocaCarreta_2.Value ||
+        ToggleCancelarGuia_2.Value
     );
 
     /* ERRO DE VALIDAÇÃO */
@@ -44,11 +44,11 @@ If(
             Destino: CBoxDestino.Selected.Value;
             Motivo: {Value: CBoxMotivo.Selected.Value};
             Observacoes: TTMultObservacoes.Text;
-            EmissaoGuia: CSelEmissaoGuia.Value;
-            TrocaGuia: CSelTrocaGuia.Value;
-            TrocaCarreta: CSelTrocaCarreta.Value;
-            EnviarPDF: CSelEnviarPDF.Value;
-            CancelarGuia: CSelCancelarGuia.Value;
+            EmissaoGuia: ToggleEmissãoNota_2.Value;
+            TrocaGuia: ToggleTrocaGuia_2.Value;
+            TrocaCarreta: ToggleTrocaCarreta_2.Value;
+            EnviarPDF: ToggleEnviarPDF_2.Value;
+            CancelarGuia: ToggleCancelarGuia_2.Value;
             Status: {Value: CBoxStatus.Selected.Value}
         }
     );;
@@ -74,11 +74,11 @@ If(
         Reset(CBoxReboque2);;
         Reset(CBoxComposição);;
 
-        Reset(CSelEmissaoGuia);;
-        Reset(CSelTrocaGuia);;
-        Reset(CSelTrocaCarreta);;
-        Reset(CSelEnviarPDF);;
-        Reset(CSelCancelarGuia);;
+        Reset(ToggleEmissãoNota_2);;
+        Reset(ToggleTrocaGuia_2);;
+        Reset(ToggleTrocaCarreta_2);;
+        Reset(ToggleEnviarPDF_2);;
+        Reset(ToggleCancelarGuia_2);;
 
         Set(varMostrarErros; false);;
         Set(varMostrarErroTipoSolicitacao; false);
