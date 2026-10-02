@@ -1,0 +1,24 @@
+IfError(
+    Patch(
+        solicitacoesViagens;
+        varViagemSelecionada;
+        {
+            Cavalo: CBoxCavaloAtendimento.Selected.Value;
+            Destino: CBoxDestinoAtendimento.Selected.Value;
+            Status: {Value: CBoxStatusAtendimento.Selected.Value}
+        }
+    );; true;
+
+    Notify(
+        "Não foi possível salvar: " & FirstError.Message;
+        NotificationType.Error
+    );; false;
+
+    Notify(
+        "Solicitação atualizada com sucesso.";
+        NotificationType.Success
+    );;
+    Refresh(solicitacoesViagens);;
+    Back();;
+    true
+)
