@@ -1,24 +1,77 @@
-IfError(
-    Patch(
-        solicitacoesViagens;
-        varViagemSelecionada;
-        {
-            Cavalo: CBoxCavaloAtendimento.Selected.Value;
-            Destino: CBoxDestinoAtendimento.Selected.Value;
-            Status: {Value: CBoxStatusAtendimento.Selected.Value}
-        }
-    );; true;
+If(
+    IsBlank(varSolicitacaoSelecionada.ID);
 
     Notify(
-        "Não foi possível salvar: " & FirstError.Message;
-        NotificationType.Error
-    );; false;
+        "Selecione uma solicitação na galeria antes de salvar.";
+        NotificationType.Warning
+    );
 
-    Notify(
-        "Solicitação atualizada com sucesso.";
-        NotificationType.Success
-    );;
-    Refresh(solicitacoesViagens);;
-    Back();;
-    true
+    IfError(
+        Patch(
+            solicitacoesViagens;
+            varSolicitacaoSelecionada;
+            {
+                Cavalo: CBoxCavalo_Atendimento.Selected.Value;
+                Reboque1: CBoxReboque1_Atendimento.Selected.Value;
+                Reboque2: CBoxReboque2_Atendimento.Selected.Value;
+                Composicao: CBoxComposição_Atendimento.Selected.Value;
+                CPF: CBoxCPF_Atendimento.Selected.Value;
+                Motorista: CBoxMotorista_Atendimento.Selected.Value;
+                CodigoTransportadora: Value(
+                    CBoxCodigo_Atendimento.Selected.Value
+                );
+                Transportadora: CBoxTransportadora_Atendimento.Selected.Value;
+                Destino: CBoxDestino_Atendimento.Selected.Value;
+                Motivo: {
+                    Value: CBoxMotivo_Atendimento.Selected.Value
+                };
+                Observacoes: TxtMultObservacoes_Atendimento.Text;
+                EmissaoGuia: ToggleEmissãoNota.Value;
+                TrocaGuia: ToggleTrocaGuia.Value;
+                TrocaCarreta: ToggleTrocaCarreta.Value;
+                CancelarGuia: ToggleCancelarGuia.Value;
+                EnviarPDF: ToggleEnviarPDF.Value;
+                Status: {
+                    Value: CBoxStatus_Atendimento.Selected.Value
+                }
+            }
+        );; true;
+
+        // Se o salvamento falhar
+        Notify(
+            "Não foi possível salvar: " & FirstError.Message;
+            NotificationType.Error
+        );; false;
+
+        // Se o salvamento funcionar
+        Refresh(solicitacoesViagens);;
+        Set(varSolicitacaoSelecionada; Blank());;
+
+        Reset(CBoxCavalo_Atendimento);;
+        Reset(CBoxReboque1_Atendimento);;
+        Reset(CBoxReboque2_Atendimento);;
+        Reset(CBoxComposição_Atendimento);;
+        Reset(CBoxCPF_Atendimento);;
+        Reset(CBoxMotorista_Atendimento);;
+        Reset(CBoxCodigo_Atendimento);;
+        Reset(CBoxTransportadora_Atendimento);;
+        Reset(CBoxDestino_Atendimento);;
+        Reset(CBoxMotivo_Atendimento);;
+        Reset(CBoxStatus_Atendimento);;
+        Reset(TxtMultObservacoes_Atendimento);;
+
+        Reset(ToggleEmissãoNota);;
+        Reset(ToggleTrocaGuia);;
+        Reset(ToggleTrocaCarreta);;
+        Reset(ToggleCancelarGuia);;
+        Reset(ToggleEnviarPDF);;
+
+        Notify(
+            "Solicitação atualizada com sucesso.";
+            NotificationType.Success
+        );;
+
+        Back();;
+        true
+    )
 )
