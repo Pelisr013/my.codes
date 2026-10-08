@@ -1,0 +1,185 @@
+Switch(
+    varTipoCadastro;
+
+    "Motorista";
+              Set(
+                  varRegistroMotorista;
+                  LookUp(
+                      app_CadMotoristas;
+                      CPF = TextInputCPF.Text
+                  )
+              );;
+          
+              Patch(
+                  app_CadMotoristas;
+                  If(
+                      IsBlank(varRegistroMotorista);
+                      Defaults(app_CadMotoristas);
+                      varRegistroMotorista
+                  );
+                  {
+                      CPF: TextInputCPF.Text;
+                      Motorista: Upper(TextInputMotorista.Text);
+                      Ativo: bttAtivo_Motorista.Value;
+                      Motivo: TextInputMotivo.Text
+                  }
+              );;
+              
+              Notify(
+                  "Cadastro salvo com sucesso.";
+                  NotificationType.Success
+              )
+
+    "Destino";
+              Set(
+                  varRegistroDestino;
+                  LookUp(
+                      app_CadDestino;
+                      Destino = Upper(TextInputDestinoUP.Text)
+              )
+              );;
+              
+              Patch(
+                  app_CadDestino;
+                  If(
+                      IsBlank(varRegistroDestino);
+                      Defaults(app_CadDestino);
+                      varRegistroDestino
+                  );
+                  {
+                      Destino: Upper(TextInputDestinoUP.Text);
+                      NomeUP: Upper(TextInputNomeUP.Text);
+                      Ativo: bttAtivo_Destino.Value;
+                      Motivo: TextInputMotivoDestino.Text
+                  }
+              );;
+              
+              Notify(
+                  "Cadastro salvo com sucesso.";
+                  NotificationType.Success
+              )
+
+    "Veiculos";
+              Set(
+                  varGOExistente;
+                  LookUp(
+                      app_CadVeiculo;
+                      GO = TextInputGO.Text &&
+                      ID <> varVeiculoEncontrado.ID
+                  )
+              );
+              Set(
+                  varCVExistente;
+                  LookUp(
+                      app_CadVeiculo;
+                      Cavalo = TextInputCavalo.Text &&
+                      ID <> varVeiculoEncontrado.ID
+                  )
+              );
+              Set(
+                  varSR1Existente;
+                  LookUp(
+                      app_CadVeiculo;
+                      Reboque1 = TextInputReboque1.Text &&
+                      ID <> varVeiculoEncontrado.ID
+                  )
+              );
+              Set(
+                  varSR2Existente;
+                  LookUp(
+                      app_CadVeiculo;
+                      Reboque2 = TextInputReboque2.Text &&
+                      ID <> varVeiculoEncontrado.ID
+                  )
+              );
+              If(
+    !IsBlank(varGOExistente);
+
+    Notify(
+        "O GO informado já está cadastrado.";
+        NotificationType.Error
+    );
+
+    /* Continuação */
+      If(
+        !IsBlank(varCVExistente);
+    
+        Notify(
+            "O cavalo '" &
+            varCVExistente.Cavalo &
+            "' já está em uso - CV: " &
+            varCVExistente.Cavalo &
+            " | SR1: " &
+            varCVExistente.Reboque1 &
+            " | SR2: " &
+            varCVExistente.Reboque2;
+            NotificationType.Error
+        );
+        If(
+            !IsBlank(varSR1Existente);
+        
+            Notify(
+                "O reboque '" &
+                varSR1Existente.Reboque1 &
+                "' já está em uso - CV: " &
+                varSR1Existente.Cavalo &
+                " | SR1: " &
+                varSR1Existente.Reboque1 &
+                " | SR2: " &
+                varSR1Existente.Reboque2;
+                NotificationType.Error
+            )
+        );
+        If(
+            !IsBlank(varSR2Existente);
+        
+            Notify(
+                "O reboque '" &
+                varSR2Existente.Reboque2 &
+                "' já está em uso - CV: " &
+                varSR2Existente.Cavalo &
+                " | SR1: " &
+                varSR2Existente.Reboque1 &
+                " | SR2: " &
+                varSR2Existente.Reboque2;
+                NotificationType.Error
+            )
+        );
+        Patch(
+              app_CadVeiculo;
+              If(
+                  IsBlank(varVeiculoEncontrado);
+                  Defaults(app_CadVeiculo);
+                  varVeiculoEncontrado
+              );
+              {
+                  GO: Upper(TextInputGO.Text);
+                  Cavalo: Upper(TextInputCavalo.Text);
+                  Reboque1: Upper(TextInputReboque1.Text);
+                  Reboque2: Upper(TextInputReboque2.Text);
+                  Composicao: DropdownComposicao.Selected.Value;
+                  Observacoes: TextInputObservacoes.Text;
+                  Bloqueio: bttBloqueio.Value
+              }
+          )
+    )
+  )
+);;
+
+Reset(TextInputCPF);;
+Reset(TextInputMotorista);;
+Reset(TextInputMotivo);;
+
+Reset(TextInputDestinoUP);;
+Reset(TextInputNomeUP);;
+Reset(TextInputMotivoDestino);;
+
+Reset(TextInputGO);;
+Reset(TextInputCavalo);;
+Reset(TextInputReboque1);;
+Reset(TextInputReboque2);;
+Reset(TextInputObservacoes);;
+Reset(DropdownComposicao);;
+
+Set(varNovoCadastro; false);;
+Set(varVeiculoEncontrado; Blank())
